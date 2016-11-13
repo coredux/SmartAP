@@ -1,8 +1,9 @@
-import gensim
+import gensim, numpy
 
 class EmbeddingContainer:
 
     model = None
+    embedding_size = 300
 
     def __init__(self, path_to_model, _binary=True):
         try:
@@ -21,7 +22,7 @@ class EmbeddingContainer:
         if self.contains_key(k):
             return self.model[k]
         else:
-            return None
+            return numpy.zeros(self.embedding_size).astype('float32')
 
 
 

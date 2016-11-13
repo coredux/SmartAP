@@ -67,10 +67,8 @@ def __gen_train_test_data():
     female = read_lines_from_file( os.path.join( data_dir_preffix, 'gender\\female.txt'))
     male_train, male_test = randomly_choose_train_test(male)
     female_train, female_test = randomly_choose_train_test(female)
-    male = shuffle(male_train + male_test)
-    female = shuffle(female_train + female_test)
-    write_list_to( os.path.join( data_dir_preffix, 'gender\\train_docsid.txt'), male )
-    write_list_to( os.path.join( data_dir_preffix, 'gender\\test_docsid.txt'), female)
+    write_list_to( os.path.join( data_dir_preffix, 'gender\\train_docsid.txt'), shuffle(male_train+female_train) )
+    write_list_to( os.path.join( data_dir_preffix, 'gender\\test_docsid.txt'), shuffle(male_test+female_test))
 
     c0 = read_lines_from_file( os.path.join( data_dir_preffix, 'age\\0.txt'))
     c1 = read_lines_from_file( os.path.join( data_dir_preffix, 'age\\1.txt'))
