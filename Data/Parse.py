@@ -1,6 +1,8 @@
 from lxml import etree
 
-
+'''
+parsing the xml file and getting the useful content
+'''
 def retrieve_from_xml(xml_content):
     try:
         root = etree.fromstring(xml_content)
