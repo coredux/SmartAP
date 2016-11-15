@@ -37,6 +37,7 @@ def define_model():
     model.add(Activation('sigmoid'))
     return model
 
+
 def complile_model(model):
     model.compile(
         loss='binary_crossentropy',
@@ -45,13 +46,16 @@ def complile_model(model):
     )
     return model
 
+
 def train_model(model, x_train, y_train):
     model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch)
     return model
 
+
 def eval_model(model, x_test, y_test):
     score, acc = model.evaluate( x_test, y_test, batch_size=batch_size)
     return score, acc
+
 
 def run_model(x_train, y_train, x_test, y_test):
     x_train = sequence.pad_sequences(x_train, maxlen=maxlen)

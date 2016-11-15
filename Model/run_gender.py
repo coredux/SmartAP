@@ -1,15 +1,17 @@
+import os
 import Data.DocsContainer as DC
 import Data.LabelContainer as LC
 import w2v.EmbeddingContainer as EC
-import numpy as np
 from Data.Util import read_lines_from_file
 from Model.gender_CNN_LSTM import run_model
+from Config import ConfigReader
 
-doc_dir = 'E:\\data\\pan_dataset\\docs'
-truth_file = 'E:\\data\\pan_dataset\\truth\\n_truth.txt'
-train_id_file = 'E:\\data\\pan_dataset\\gender\\train_docsid.txt'
-test_id_file = 'E:\\data\\pan_dataset\\gender\\test_docsid.txt'
-w2v_file = 'E:\\data\\w2vModel\\g300.bin'
+doc_dir = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\docs')
+truth_file = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\truth\\n_truth.txt')
+train_id_file = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\gender\\train_docsid.txt')
+test_id_file = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\gender\\test_docsid.txt')
+w2v_file = ConfigReader.ConfigReader().get('w2v_model')
+
 
 def _generate_gender_x_y(docs_ids, dc, lc):
     x_sentences = map(lambda x: dc.retrieve_content_in_sentences(x), docs_ids)
@@ -21,6 +23,7 @@ def _generate_gender_x_y(docs_ids, dc, lc):
             x.extend(x_sentences[i])
             y.extend([y_label_doc[i]] * len(x_sentences[i]))
     return x,y
+
 
 def generate_gender_x_y(docs_ids, dc, lc):
     x_sentences = map(lambda x: dc.retrieve_content_in_one(x), docs_ids)
