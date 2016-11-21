@@ -1,26 +1,20 @@
 from Data.Util import read_lines_from_file
+import ConfigParser
 
 
 class ConfigReader:
 
-    config_dict = dict()
+    cf = ConfigParser.ConfigParser()
+    config_path = '../Config/app.ini'
 
     def __init__(self):
-        try:
-            lines = read_lines_from_file('..\\Config\\app.config')
-            for line in lines:
-                tokens = str(line).strip().split('=')
-                self.config_dict[tokens[0].strip()] = tokens[1].strip()
-        except:
-            raise Exception('invalid configuration')
+        self.cf.read(self.config_path)
 
-    def get(self, key):
-        if key in self.config_dict:
-            return self.config_dict[key]
-        else:
-            raise Exception('invalid configuration key')
+    def get(self, key_class, key_name):
+        return self.cf.get(key_class, key_name)
 
 
 if __name__ == '__main__':
     c = ConfigReader()
-    print ConfigReader().get('root')
+    print ConfigReader().get('file', 'root')
+    print ConfigReader().get('word2vec', 'model_path')

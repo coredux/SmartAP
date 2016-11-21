@@ -6,11 +6,11 @@ from Data.Util import read_lines_from_file
 from Model.gender_CNN_LSTM import run_model
 from Config import ConfigReader
 
-doc_dir = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\docs')
-truth_file = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\truth\\n_truth.txt')
-train_id_file = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\gender\\train_docsid.txt')
-test_id_file = os.path.join(ConfigReader.ConfigReader().get('root'), 'pan_dataset\\gender\\test_docsid.txt')
-w2v_file = ConfigReader.ConfigReader().get('w2v_model')
+doc_dir = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'pan_dataset/docs')
+truth_file = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'pan_dataset/truth/n_truth.txt')
+train_id_file = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'pan_dataset/gender/train_docsid.txt')
+test_id_file = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'pan_dataset/gender/test_docsid.txt')
+w2v_file = ConfigReader.ConfigReader().get('word2vec', 'model_path')
 
 
 def _generate_gender_x_y(docs_ids, dc, lc):
