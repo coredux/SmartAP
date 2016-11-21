@@ -1,0 +1,4 @@
+[file]
+root=E:/data
+[word2vec]
+model_path=E:/ap/word2vec/g300.bin
