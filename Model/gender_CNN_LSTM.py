@@ -18,7 +18,7 @@ lstm_output_size = 70
 
 # Training
 batch_size = 30
-nb_epoch = 5
+nb_epoch = 15
 
 
 def define_model():
@@ -32,7 +32,7 @@ def define_model():
         subsample_length=1
     ))
     model.add(MaxPooling1D(pool_length=pool_length))
-    model.add(LSTM(lstm_output_size))
+    model.add(LSTM(lstm_output_size, return_sequences=False))
     model.add(Dense(1))
     model.add(Activation('sigmoid'))
     return model
@@ -60,9 +60,13 @@ def eval_model(model, x_test, y_test):
 def run_model(x_train, y_train, x_test, y_test):
     x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
     x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+    male = [x for x in y_test if x == 1]
+    female = [x for x in y_test if x == 0]
     model = define_model()
     model = complile_model(model)
     model = train_model(model, x_train, y_train)
+
+    print len(male), len(female)
     print eval_model(model, x_test, y_test)
 
 
