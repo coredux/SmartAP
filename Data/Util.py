@@ -73,6 +73,65 @@ def randomly_choose_train_test(name_list, ratio=0.8):
     len_train = int(len(shuffled) * ratio)
     return shuffled[:len_train], shuffled[len_train:]
 
+'''
+shuffle one list
+'''
 def shuffle(l):
     return random.sample(l, len(l))
 
+'''
+shuffle two lists in the same sequence
+'''
+def shuffle_x_y(li1, li2):
+    seed = random.randint(0, 100)
+    random.seed(seed)
+    random.shuffle(li1)
+    random.seed(seed)
+    random.shuffle(li2)
+    return list(li1), list(li2)
+
+
+'''
+count the word in a sentence
+'''
+def word_count(sentence):
+    return len(str(sentence).split(' '))
+
+'''
+split the sentence into short sentences
+'''
+def spllit_sentences(l_sentence, word_thre = 30):
+    return __split_sentences(l_sentence, word_thre)
+
+def __split_sentences(sentence, word_thre):
+    tokens = sentence.split(' ')
+    start = 0
+    ret = []
+    while start < len(tokens):
+        if start + word_thre < len(tokens):
+            short_sent = str.join(' ', tokens[start:(start+word_thre)])
+            ret.append(short_sent)
+        else:
+            short_sent = str.join(' ', tokens[start:])
+            ret.append(short_sent)
+        start += word_thre
+    return ret
+
+'''
+unit tests below
+'''
+def __test_split_sentence():
+    a = "hello how are you fine thank you and you"
+    print __split_sentences(a, 3)
+
+
+def __test_shuffle_x_y():
+    a = [1,2,3,4,5,6,7,8,9]
+    b = [1,2,3,4,5,6,7,8,9]
+    sa, sb = shuffle_x_y(a, b)
+    print sa
+    print sb
+
+
+if __name__ == '__main__':
+    __test_shuffle_x_y()

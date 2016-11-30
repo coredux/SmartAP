@@ -13,8 +13,8 @@ class DocsContainer:
     def retrieve_content_in_one(self,docs_id):
         ret = []
         lines = self.retrieve_content_in_sentences(docs_id)
-        map(lambda x: ret.extend(x), map(lambda x: x.split(' '), lines))
-        return ret
+        #map(lambda x: ret.extend(x), map(lambda x: x.split(' '), lines))
+        return str.join(' ', lines)
 
     def retrieve_content_in_sentences(self,docs_id):
         path_to_file = os.path.join(self.docs_dir, docs_id + ".txt")

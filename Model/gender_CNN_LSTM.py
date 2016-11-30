@@ -1,12 +1,13 @@
 import numpy as np
+from Config import ConfigReader
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers import Convolution1D, MaxPooling1D
 from keras.layers import LSTM, Dense, Activation
 
 # data
-maxlen = 135
-embedding_size = 300
+maxlen = 30
+embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
 
 # Convolution
 filter_length = 5

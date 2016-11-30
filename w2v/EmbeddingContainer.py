@@ -1,13 +1,14 @@
 import gensim, numpy
+from Config import ConfigReader
 
 class EmbeddingContainer:
 
     model = None
-    embedding_size = 300
+    embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
 
-    def __init__(self, path_to_model, _binary=True):
+    def __init__(self, path_to_model, _binary=True,  _unicode_errors='ignore'):
         try:
-            self.model = gensim.models.Word2Vec.load_word2vec_format(path_to_model, binary=_binary)
+            self.model = gensim.models.Word2Vec.load_word2vec_format(path_to_model, binary=_binary, unicode_errors=_unicode_errors)
         except:
             print "warning: cannot load w2v model"
 
@@ -24,6 +25,10 @@ class EmbeddingContainer:
         else:
             return numpy.zeros(self.embedding_size).astype('float32')
 
+
+if __name__ == '__main__':
+    w2v_file = ConfigReader.ConfigReader().get('word2vec', 'model_path')
+    print w2v_file
 
 
 
