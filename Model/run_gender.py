@@ -3,7 +3,8 @@ import Data.DocsContainer as DC
 import Data.LabelContainer as LC
 import w2v.EmbeddingContainer as EC
 from Data.Util import read_lines_from_file, spllit_sentences, shuffle_x_y
-from Model.gender_CNN_LSTM import run_model
+# from Model.gender_CNN_LSTM import run_model
+from Model.zgd_LSTM import run_model
 from Config import ConfigReader
 
 doc_dir = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'pan_dataset/docs')
