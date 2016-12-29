@@ -1,7 +1,6 @@
 from Config import ConfigReader
 from keras.preprocessing import sequence
 from keras.models import Sequential
-from keras.layers import Convolution1D, MaxPooling1D
 from keras.layers import LSTM, Dense, Activation, Dropout
 
 # data
@@ -21,12 +20,13 @@ dropout_p = 0.25
 def define_model():
     model = Sequential()
     model.add(LSTM(
+        128,
         input_shape=(maxlen, embedding_size),
-        activation='relu',
-        output_dim=lstm_output_size,
-        return_sequences=True,
+        return_sequences=False
     ))
-    model.add(Dense(10))
+    model.add(Dense(
+        1
+    ))
     model.add(Dropout(dropout_p))
     model.add(Activation('linear'))
     return model
@@ -49,6 +49,11 @@ def train_model(model, x_train, y_train):
 def eval_model(model, x_test, y_test):
     score, acc = model.evaluate( x_test, y_test, batch_size=batch_size)
     return score, acc
+
+
+def verify_model():
+    model = define_model()
+    model.summary()
 
 
 def run_model(x_train, y_train, x_test, y_test):

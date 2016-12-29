@@ -3,8 +3,8 @@ import Data.DocsContainer as DC
 import Data.LabelContainer as LC
 import w2v.EmbeddingContainer as EC
 from Data.Util import read_lines_from_file, spllit_sentences, shuffle_x_y
-# from Model.gender_CNN_LSTM import run_model
-from Model.zgd_LSTM import run_model
+from Model.gender_CNN_LSTM import run_model, verify_model
+#from Model.zgd_LSTM import run_model, verify_model
 from Config import ConfigReader
 
 doc_dir = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'pan_dataset/docs')
@@ -47,29 +47,39 @@ def generate_gender_x_y(docs_ids, dc, lc):
     return x_sentences, y_label_doc
 
 
-def main():
-    print w2v_file
+def prepare_data():
+    print "word embeddings: " + w2v_file
     dc = DC.DocsContainer(docs_dir=doc_dir)
     lc = LC.LabelContainer(truth_file)
     ec = EC.EmbeddingContainer(w2v_file)
-    print "1"
+    print "resources loaded"
     x_train_ids = read_lines_from_file(train_id_file)
     #x_train, y_train = _generate_gender_x_y(x_train_ids, dc, lc)
     x_train, y_train = generate_gender_short_x_y(x_train_ids, dc, lc)
 
     x_train = map(lambda x: map(lambda y: ec.look_up(y), x), x_train)
-    print "2"
+    print "training data prepared"
 
     x_test_ids = read_lines_from_file(test_id_file)
     #x_test, y_test = _generate_gender_x_y(x_test_ids, dc, lc)
     x_test, y_test = generate_gender_short_x_y(x_test_ids, dc, lc)
     x_test = map(lambda x: map(lambda y: ec.look_up(y), x), x_test)
-    print "3"
+    print "testing data prepared"
 
-    print len(x_train), len(x_train[0])
+    print('shape of training data item 0: %s %s %s' % (len(x_train), len(x_train[0]), len(x_train[0][0])))
+    return x_train, y_train, x_test, y_test
 
+
+def run_gender():
+    x_train, y_train, x_test, y_test = prepare_data()
     run_model(x_train, y_train, x_test, y_test)
 
+
+def verify():
+    verify_model()
+
+
 if __name__ == '__main__':
-    main()
+    run_gender()
+    #verify()
 

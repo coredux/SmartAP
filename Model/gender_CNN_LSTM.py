@@ -1,21 +1,25 @@
-import numpy as np
 from Config import ConfigReader
 from keras.preprocessing import sequence
 from keras.models import Sequential
-from keras.layers import Convolution1D, MaxPooling1D
+from keras.layers import Convolution1D, GlobalAveragePooling1D
 from keras.layers import LSTM, Dense, Activation
+from keras.layers.wrappers import TimeDistributed
+import numpy as np
 
 # data
 maxlen = 30
 embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
 
 # Convolution
-filter_length = 5
+filter_length = 4
 nb_filter = 64
 pool_length = 4
 
 # LSTM
-lstm_output_size = 70
+lstm_hidden_size = 70
+
+# Dense
+dense_hidden_size = 32
 
 # Training
 batch_size = 30
@@ -32,10 +36,12 @@ def define_model():
         activation='relu',
         subsample_length=1
     ))
-    model.add(MaxPooling1D(pool_length=pool_length))
-    model.add(LSTM(lstm_output_size, return_sequences=False))
-    model.add(Dense(1))
-    model.add(Activation('sigmoid'))
+    model.add(LSTM(lstm_hidden_size ,return_sequences=True))
+    model.add(LSTM(lstm_hidden_size))
+    #model.add(TimeDistributed(Dense(dense_hidden_size, activation='sigmoid')))
+    #model.add(TimeDistributed(Dense(1, activation='sigmoid')))
+    model.add(Dense(dense_hidden_size, activation='sigmoid'))
+    model.add(Dense(1,activation='sigmoid'))
     return model
 
 
@@ -58,9 +64,20 @@ def eval_model(model, x_test, y_test):
     return score, acc
 
 
+def verify_model():
+    model = define_model()
+    model.summary()
+
+
 def run_model(x_train, y_train, x_test, y_test):
     x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+    y_train = np.array(y_train)
+    print('shape of training data x for running %s' % str(x_train.shape))
+    print('shape of training data y for running %s' % str(y_train.shape))
     x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+    y_test = np.array(y_test)
+    print('shape of testing data x for running %s' % str(x_test.shape))
+    print('shape of testing data y for running %s' % str(y_test.shape))
     male = [x for x in y_test if x == 1]
     female = [x for x in y_test if x == 0]
     model = define_model()

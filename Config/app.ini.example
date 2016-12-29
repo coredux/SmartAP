@@ -2,3 +2,8 @@
 root=E:/data
 [word2vec]
 model_path=E:/ap/word2vec/g300.bin
+dim=300
+[glove]
+dim=100
+[parameters]
+text_max_nb_frequent_words=20000
