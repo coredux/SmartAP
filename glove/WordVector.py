@@ -18,7 +18,7 @@ class GloveWordVector:
     def contains_key(self,word):
         return word in self.embedding_index
 
-    def look_up(self,word):
+    def lookup(self,word):
         if self.contains_key(word):
             return self.embedding_index[word]
         else:
