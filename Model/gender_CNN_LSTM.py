@@ -2,13 +2,14 @@ from Config import ConfigReader
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers import Convolution1D, GlobalAveragePooling1D
-from keras.layers import LSTM, Dense, Activation
+from keras.layers import LSTM, Dense, Activation, Dropout
 from keras.layers.wrappers import TimeDistributed
 import numpy as np
 
 # data
-maxlen = 30
-embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
+maxlen = 150
+#embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
+embedding_size = 100
 
 # Convolution
 filter_length = 4
@@ -38,9 +39,9 @@ def define_model():
     ))
     model.add(LSTM(lstm_hidden_size ,return_sequences=True))
     model.add(LSTM(lstm_hidden_size))
-    #model.add(TimeDistributed(Dense(dense_hidden_size, activation='sigmoid')))
-    #model.add(TimeDistributed(Dense(1, activation='sigmoid')))
     model.add(Dense(dense_hidden_size, activation='sigmoid'))
+    model.add(Dense(dense_hidden_size, activation='sigmoid'))
+    model.add(Dropout(0.25))
     model.add(Dense(1,activation='sigmoid'))
     return model
 
