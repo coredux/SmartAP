@@ -4,7 +4,7 @@ from Config import ConfigReader
 class EmbeddingContainer:
 
     model = None
-    embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
+    embedding_size = int(ConfigReader.ConfigReader().get('settings', 'word_embedding_dim'))
 
     def __init__(self, path_to_model, _binary=True,  _unicode_errors='ignore'):
         try:

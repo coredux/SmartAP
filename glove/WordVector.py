@@ -4,7 +4,7 @@ from Config import ConfigReader
 class GloveWordVector:
 
     embedding_index = {}
-    embedding_size = int(ConfigReader.ConfigReader().get('glove', 'dim'))
+    embedding_size = int(ConfigReader.ConfigReader().get('settings', 'word_embedding_dim'))
 
     def __init__(self, path_to_glove):
         with open(path_to_glove, 'r') as infile:

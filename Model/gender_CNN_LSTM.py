@@ -8,8 +8,8 @@ import numpy as np
 
 # data
 maxlen = 150
-#embedding_size = int(ConfigReader.ConfigReader().get('word2vec', 'dim'))
-embedding_size = 100
+embedding_size = int(ConfigReader.ConfigReader().get('settings', 'word_embedding_dim'))
+
 
 # Convolution
 filter_length = 4
