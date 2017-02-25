@@ -6,5 +6,6 @@ model_path=E:/ap/word2vec/g300.bin
 model_path=E:/data/glove/100d.txt
 [settings]
 word_embedding_dim=100
+hyper_batch_size=1000
 [parameters]
 text_max_nb_frequent_words=20000

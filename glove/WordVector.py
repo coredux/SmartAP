@@ -20,7 +20,7 @@ class GloveWordVector:
 
     def look_up(self,word):
         if self.contains_key(word):
-            return self.embedding_index[word]
+            return self.embedding_index[word].astype('float32')
         else:
             return np.zeros(self.embedding_size).astype('float32')
 
