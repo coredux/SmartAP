@@ -1,6 +1,6 @@
 from Config import ConfigReader
 from keras.preprocessing import sequence
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Convolution1D, GlobalAveragePooling1D
 from keras.layers import LSTM, Dense, Activation, Dropout
 from keras.layers.wrappers import TimeDistributed
@@ -28,6 +28,11 @@ dense_hidden_size = 32
 batch_size = 30
 nb_epoch = 10
 
+# Label
+label_male = 1
+label_female = 0
+
+model_save_path = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'model')
 
 def define_model():
     model = Sequential()
@@ -61,11 +66,19 @@ def train_model(model, x_train, y_train):
     return model
 
 
-# generator should be infinite (loops through data)
+# for batch training, generator should be infinite (loops through data)
 def batch_generator(batch_path, typename):
     while True:
         for x, y in load_on_batch(path_to_batch_dir=batch_path, name=typename):
             yield sequence.pad_sequences(x, maxlen=maxlen), np.array(y)
+
+
+# this is for testing
+def testing_batch_iterator(batch_path, typename):
+    for x, y in load_on_batch(path_to_batch_dir=batch_path, name=typename):
+        for i in xrange(len(y)):
+            v_doc = sequence.pad_sequences(x[i], maxlen=maxlen)
+            yield v_doc, np.array(y[i])
 
 
 def count_batch(batch_path, typename):
@@ -76,7 +89,7 @@ def count_batch(batch_path, typename):
     return n_samples
 
 
-def train_model_on_batch(model, batch_path, typename):
+def __train_model_on_batch(model, batch_path, typename):
     n_samples = count_batch(batch_path, typename)
     model.fit_generator(batch_generator(batch_path, typename), samples_per_epoch=n_samples, nb_epoch=nb_epoch)
     return model
@@ -87,10 +100,24 @@ def eval_model(model, x_test, y_test):
     return score, acc
 
 
-def eval_model_on_batch(model, batch_path, typename):
-    n_samples = count_batch(batch_path, typename)
-    score, acc = model.evaluate_generator(batch_generator(batch_path, typename), n_samples)
-    print score, acc
+def __eval_model_on_batch(model, batch_path, typename):
+    p = []
+    ans = []
+    for x, y in testing_batch_iterator(batch_path, typename):
+        ans.append(y)
+        pi = model.predict(x)
+        m = len([pij for pij in pi if int(pij) == label_male])
+        f = len([pij for pij in pi if int(pij) == label_female])
+        if m > f:
+            p.append(label_male)
+        else:
+            p.append(label_female)
+    right = len([p[i] for i in xrange(len(p)) if p[i] == ans[i]])
+    print 'acc: {0}'.format(float(right) / len(p))
+
+
+def save_model(model, path):
+    model.save(path)
 
 
 def verify_model():
@@ -98,11 +125,20 @@ def verify_model():
     model.summary()
 
 
-def run_model_on_batch(batch_dir):
+def train_model_on_batch(batch_dir, save = True):
     model = define_model()
     model = complile_model(model)
-    model = train_model_on_batch(model, batch_dir, 'train')
-    eval_model_on_batch(model, batch_dir, 'test')
+    model = __train_model_on_batch(model, batch_dir, 'train')
+    if save:
+        if not os.path.exists(model_save_path): os.mkdir(model_save_path)
+        save_model(model, os.path.join(model_save_path, 'model.h5'))
+    return model
+
+
+def eval_model_on_batch(batch_dir):
+    if os.path.exists(os.path.join(model_save_path, 'model.h5')):
+        model = load_model(os.path.join(model_save_path, 'model.h5'))
+        __eval_model_on_batch(model, batch_dir, 'test')
 
 
 def run_model(x_train, y_train, x_test, y_test):

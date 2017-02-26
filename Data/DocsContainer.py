@@ -10,13 +10,13 @@ class DocsContainer:
         else:
             raise Exception('invalid dir for docs')
 
-    def retrieve_content_in_one(self,docs_id):
+    def retrieve_content_in_one(self, docs_id):
         ret = []
         lines = self.retrieve_content_in_sentences(docs_id)
         #map(lambda x: ret.extend(x), map(lambda x: x.split(' '), lines))
         return str.join(' ', lines)
 
-    def retrieve_content_in_sentences(self,docs_id):
+    def retrieve_content_in_sentences(self, docs_id):
         path_to_file = os.path.join(self.docs_dir, docs_id + ".txt")
         if os.path.exists(path_to_file):
             return read_lines_from_file(path_to_file)
