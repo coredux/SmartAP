@@ -1,12 +1,13 @@
 from Config import ConfigReader
 from keras.preprocessing import sequence
 from keras.models import Sequential, load_model
-from keras.layers import Convolution1D, GlobalAveragePooling1D
+from keras.layers import Convolution1D, GlobalAveragePooling1D, Embedding
 from keras.layers import LSTM, Dense, Activation, Dropout
 from keras.layers.wrappers import TimeDistributed
 from Data.Util import load_on_batch
 import numpy as np
 import pickle, os
+from Data.prepare_data import load_word_embedding_weights, load_word_indexer
 
 # data
 maxlen = 150
@@ -34,11 +35,18 @@ label_female = 0
 
 model_save_path = os.path.join(ConfigReader.ConfigReader().get('file', 'root'), 'model')
 
+
 def define_model():
     model = Sequential()
+    model.add(Embedding(
+        input_shape=(None, maxlen),
+        input_dim=len(load_word_indexer()) + 1,
+        output_dim=embedding_size,
+        weights=[load_word_embedding_weights()],
+        trainable=True
+    ))
     model.add(Convolution1D(
-        input_shape=(maxlen, embedding_size),
-        nb_filter= nb_filter,
+        nb_filter=nb_filter,
         filter_length=filter_length,
         border_mode='valid',
         activation='relu',
@@ -46,9 +54,8 @@ def define_model():
     ))
     #model.add(LSTM(lstm_hidden_size ,return_sequences=True))
     model.add(LSTM(lstm_hidden_size))
-    model.add(Dense(dense_hidden_size, activation='sigmoid'))
-    model.add(Dropout(0.25))
-    model.add(Dense(1,activation='sigmoid'))
+    model.add(Dense(dense_hidden_size, activation='relu'))
+    model.add(Dense(1, activation='relu'))
     return model
 
 
@@ -70,15 +77,16 @@ def train_model(model, x_train, y_train):
 def batch_generator(batch_path, typename):
     while True:
         for x, y in load_on_batch(path_to_batch_dir=batch_path, name=typename):
-            yield sequence.pad_sequences(x, maxlen=maxlen), np.array(y)
+            pad_x = sequence.pad_sequences(x, maxlen=maxlen, dtype='int32')
+            yield pad_x, np.array(y).astype('int32')
 
 
 # this is for testing
 def testing_batch_iterator(batch_path, typename):
     for x, y in load_on_batch(path_to_batch_dir=batch_path, name=typename):
         for i in xrange(len(y)):
-            v_doc = sequence.pad_sequences(x[i], maxlen=maxlen)
-            yield v_doc, np.array(y[i])
+            v_doc = sequence.pad_sequences(x[i], maxlen=maxlen, dtype='int32')
+            yield v_doc, np.array(y[i]).astype('int32')
 
 
 def count_batch(batch_path, typename):
@@ -103,17 +111,26 @@ def eval_model(model, x_test, y_test):
 def __eval_model_on_batch(model, batch_path, typename):
     p = []
     ans = []
+    exc_cnt = 0
     for x, y in testing_batch_iterator(batch_path, typename):
         ans.append(y)
-        pi = model.predict(x)
-        m = len([pij for pij in pi if int(pij) == label_male])
-        f = len([pij for pij in pi if int(pij) == label_female])
-        if m > f:
+        pi = []
+        try:
+            pi = model.predict(x)
+        except:
+            exc_cnt += 1
+            m = 0
+            f = 0
+        m = len([pij for pij in pi if pij > 0.5])
+        f = len([pij for pij in pi if pij < 0.5])
+        if m >= f:
             p.append(label_male)
         else:
             p.append(label_female)
     right = len([p[i] for i in xrange(len(p)) if p[i] == ans[i]])
     print 'acc: {0}'.format(float(right) / len(p))
+    print exc_cnt, len(p)
+    print p
 
 
 def save_model(model, path):

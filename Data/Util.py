@@ -37,7 +37,7 @@ def read_lines_from_file(path_to_file):
     if os.path.exists(path_to_file):
         file_object = open(path_to_file)
         try:
-            lines = [ x.strip() for x in file_object.readlines()]
+            lines = [x.strip() for x in file_object.readlines()]
         finally:
             file_object.close()
     return lines

@@ -8,7 +8,7 @@ class Tokenizer:
         self.tokenizer = TweetTokenizer(strip_handles=True, reduce_len=True)
 
     def tokenize(self, sentence):
-        return  self.tokenizer.tokenize(sentence)
+        return self.tokenizer.tokenize(sentence)
 
 
 if __name__ == '__main__':

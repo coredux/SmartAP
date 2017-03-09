@@ -1,6 +1,7 @@
 import numpy as np
 from Config import ConfigReader
 
+
 class GloveWordVector:
 
     embedding_index = {}
@@ -18,7 +19,7 @@ class GloveWordVector:
     def contains_key(self,word):
         return word in self.embedding_index
 
-    def look_up(self,word):
+    def look_up(self, word):
         if self.contains_key(word):
             return self.embedding_index[word].astype('float32')
         else:
