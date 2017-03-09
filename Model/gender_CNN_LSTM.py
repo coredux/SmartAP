@@ -1,16 +1,17 @@
 from Config import ConfigReader
 from keras.preprocessing import sequence
 from keras.models import Sequential, load_model
-from keras.layers import Convolution1D, GlobalAveragePooling1D, Embedding
+from keras.layers import Convolution1D, GlobalAveragePooling1D, Embedding, MaxPooling1D, Flatten
 from keras.layers import LSTM, Dense, Activation, Dropout
 from keras.layers.wrappers import TimeDistributed
+from keras.utils.np_utils import to_categorical
 from Data.Util import load_on_batch
 import numpy as np
 import pickle, os
 from Data.prepare_data import load_word_embedding_weights, load_word_indexer
 
 # data
-maxlen = 150
+maxlen = 200
 embedding_size = int(ConfigReader.ConfigReader().get('settings', 'word_embedding_dim'))
 hyper_batch_size = int(ConfigReader.ConfigReader().get('settings', 'hyper_batch_size'))
 
@@ -52,10 +53,19 @@ def define_model():
         activation='relu',
         subsample_length=1
     ))
+    model.add(MaxPooling1D(3))
+    model.add(Convolution1D(
+        nb_filter=nb_filter,
+        filter_length=filter_length,
+        border_mode='valid',
+        activation='relu',
+        subsample_length=1
+    ))
+    model.add(GlobalAveragePooling1D())
     #model.add(LSTM(lstm_hidden_size ,return_sequences=True))
-    model.add(LSTM(lstm_hidden_size))
+    #model.add(LSTM(lstm_hidden_size))
     model.add(Dense(dense_hidden_size, activation='relu'))
-    model.add(Dense(1, activation='relu'))
+    model.add(Dense(2, activation='softmax'))
     return model
 
 
@@ -69,7 +79,7 @@ def complile_model(model):
 
 
 def train_model(model, x_train, y_train):
-    model.fit(x_train, y_train, batch_size=batch_size, nb_epoch=nb_epoch)
+    model.fit(x_train, to_categorical(y_train), batch_size=batch_size, nb_epoch=nb_epoch)
     return model
 
 
@@ -78,7 +88,7 @@ def batch_generator(batch_path, typename):
     while True:
         for x, y in load_on_batch(path_to_batch_dir=batch_path, name=typename):
             pad_x = sequence.pad_sequences(x, maxlen=maxlen, dtype='int32')
-            yield pad_x, np.array(y).astype('int32')
+            yield pad_x, to_categorical(np.array(y).astype('int32'), 2)
 
 
 # this is for testing
@@ -121,8 +131,8 @@ def __eval_model_on_batch(model, batch_path, typename):
             exc_cnt += 1
             m = 0
             f = 0
-        m = len([pij for pij in pi if pij > 0.5])
-        f = len([pij for pij in pi if pij < 0.5])
+        m = len([pij for pij in pi if pij[1] > pij[0]])
+        f = len([pij for pij in pi if pij[1] < pij[0]])
         if m >= f:
             p.append(label_male)
         else:
